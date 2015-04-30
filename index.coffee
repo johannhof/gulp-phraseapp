@@ -4,16 +4,22 @@ gutil       = require 'gulp-util'
 es          = require 'event-stream'
 merge       = require('deep-merge')((a,b) -> a)
 
+baseURL = "https://phraseapp.com/api/v1"
+
 module.exports = (options) ->
   base = options.base or 'en'
   auth_token = options.auth_token
   # get locale list
-  request("https://phraseapp.com/api/v1/locales/?auth_token=#{auth_token}")
+  request("#{baseUrl}/locales/?auth_token=#{auth_token}")
     .pipe es.parse()
     .pipe es.through (locales) ->
       data = {}
       for locale in locales
-        res = syncRequest('GET', "https://phraseapp.com/api/v1/translations/download.nested_json?locale=#{locale.code}&auth_token=#{auth_token}")
+        if locale.code is options.base or options.includeEmpty
+          includeEmpty = "1"
+        else
+          includeEmpty = "0"
+        res = syncRequest('GET', "#{baseUrl}/translations/download.nested_json?locale=#{locale.code}&include_empty_translations=#{includeEmpty}&auth_token=#{auth_token}")
         data[locale.code] = JSON.parse(res.getBody())
 
       for code, text of data
