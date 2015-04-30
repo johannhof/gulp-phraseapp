@@ -6,6 +6,15 @@ merge       = require('deep-merge')((a,b) -> a)
 
 baseUrl = "https://phraseapp.com/api/v1"
 
+keyCount = (obj) ->
+  count = 0
+  for own key, val of obj
+    if typeof val is "object"
+      count += keyCount(val)
+    else
+      count += 1
+  count
+
 module.exports = (options) ->
   base = options.base or 'en'
   auth_token = options.auth_token
@@ -27,7 +36,7 @@ module.exports = (options) ->
         if options.base
           out = merge(text, data[options.base])
 
-        gutil.log 'gulp-locales', "Building #{code}.json", gutil.colors.cyan " translations"
+        gutil.log 'gulp-phraseapp', "Downloaded #{code}.json", gutil.colors.cyan "#{keyCount(text)} translations"
         @emit 'data',
           new gutil.File
             cwd      : ""
