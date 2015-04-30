@@ -14,25 +14,24 @@
     return a;
   });
 
-  module.exports = function(auth_token) {
+  module.exports = function(options) {
+    var auth_token, base;
+    base = options.base || 'en';
+    auth_token = options.auth_token;
     return request("https://phraseapp.com/api/v1/locales/?auth_token=" + auth_token).pipe(es.parse()).pipe(es.through(function(locales) {
-      var code, data, descriptions, i, len, locale, out, res, text;
+      var code, data, i, len, locale, out, res, text;
       data = {};
       for (i = 0, len = locales.length; i < len; i++) {
         locale = locales[i];
         res = syncRequest('GET', "https://phraseapp.com/api/v1/translations/download.nested_json?locale=" + locale.code + "&auth_token=" + auth_token);
         data[locale.code] = JSON.parse(res.getBody());
       }
-      res = syncRequest('GET', "https://phraseapp.com/api/v1/translations/download.nested_json?locale=en&include_empty_translations=1&auth_token=" + auth_token);
-      data["en"] = JSON.parse(res.getBody());
-      descriptions = {};
       for (code in data) {
         text = data[code];
-        out = merge(text, data["en"]);
-        descriptions[code] = {
-          name: text.name != null ? text.name : data["en"].name,
-          description: text.description != null ? text.description : data["en"].description
-        };
+        out = text;
+        if (options.base) {
+          out = merge(text, data[options.base]);
+        }
         gutil.log('gulp-locales', "Building " + code + ".json", gutil.colors.cyan(" translations"));
         this.emit('data', new gutil.File({
           cwd: "",
@@ -41,12 +40,6 @@
           contents: new Buffer(JSON.stringify(out, null, '  '))
         }));
       }
-      this.emit('data', new gutil.File({
-        cwd: "",
-        base: "",
-        path: "descriptions.json",
-        contents: new Buffer(JSON.stringify(descriptions, null, '  '))
-      }));
       return this.emit('end');
     }));
   };
