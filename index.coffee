@@ -4,7 +4,7 @@ gutil       = require 'gulp-util'
 es          = require 'event-stream'
 merge       = require('deep-merge')((a,b) -> a)
 
-baseURL = "https://phraseapp.com/api/v1"
+baseUrl = "https://phraseapp.com/api/v1"
 
 module.exports = (options) ->
   base = options.base or 'en'
