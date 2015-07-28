@@ -1,11 +1,11 @@
 {
   "name": "gulp-phraseapp",
   "version": "1.0.0",
-  "description": "Exporting Phraseapp translations as a Gulp task",
+  "description": "Importing Phraseapp translations as a Gulp task",
   "main": "dist/index.js",
   "scripts": {
     "build": "coffee -c -o dist/ index.coffee",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp --gulpfile test.js"
   },
   "repository": {
     "type": "git",
@@ -18,14 +18,13 @@
   },
   "homepage": "https://github.com/johannhof/gulp-phraseapp",
   "devDependencies": {
-    "coffee-script": "^1.9.2"
+    "coffee-script": "^1.9.2",
+    "gulp": "^3.9.0"
   },
   "dependencies": {
     "deep-merge": "^1.0.0",
-    "event-stream": "^3.3.0",
-    "gulp": "^3.8.11",
     "gulp-util": "^3.0.4",
-    "request": "^2.55.0",
-    "sync-request": "^2.0.1"
+    "highland": "^2.5.1",
+    "request": "^2.55.0"
   }
 }

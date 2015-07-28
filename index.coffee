@@ -1,11 +1,11 @@
 request     = require 'request'
-syncRequest = require 'sync-request'
 gutil       = require 'gulp-util'
-es          = require 'event-stream'
 merge       = require('deep-merge')((a,b) -> a)
+_           = require 'highland'
 
-baseUrl = "https://phraseapp.com/api/v1"
+baseUrl = "https://phraseapp.com/api/v2"
 
+# simple utility function to get the recursive number of keys in an object
 keyCount = (obj) ->
   count = 0
   for own key, val of obj
@@ -15,34 +15,58 @@ keyCount = (obj) ->
       count += 1
   count
 
-module.exports = (options) ->
+exports.download = (options) ->
+  # options
   base = options.base or 'en'
-  auth_token = options.auth_token
-  # get locale list
-  request("#{baseUrl}/locales/?auth_token=#{auth_token}")
-    .pipe es.parse()
-    .pipe es.through (locales) ->
-      data = {}
-      for locale in locales
-        if locale.code is options.base or options.includeEmpty
-          includeEmpty = "1"
-        else
-          includeEmpty = "0"
-        res = syncRequest('GET', "#{baseUrl}/translations/download.nested_json?locale=#{locale.code}&include_empty_translations=#{includeEmpty}&auth_token=#{auth_token}")
-        data[locale.code] = JSON.parse(res.getBody())
+  token = options.accessToken
+  if not token? then throw new Error("A Phraseapp access token must be present")
+  project = options.projectID
+  if not project? then throw new Error("A Phraseapp project id must be present")
 
-      for code, text of data
+  # get locale list
+  _(request("#{baseUrl}/projects/#{project}/locales/?access_token=#{token}"))
+    # concat all buffer chunks together
+    .reduce1(_.add)
+    # get request urls for the individual translations
+    .flatMap (body) ->
+      locales = JSON.parse(body.toString())
+      _(for locale in locales
+        includeEmpty = if locale.code is options.base or options.includeEmpty then "1" else "0"
+        {
+          code: locale.code
+          url: "#{baseUrl}/projects/#{project}/locales/#{locale.code}/download?file_format=nested_json&include_empty_translations=#{includeEmpty}&access_token=#{token}"
+        }
+      )
+    # download the translations
+    .map ({url, code}) ->
+      _(request(url))
+        # concat all buffer chunks together
+        .reduce1(_.add)
+        .map (body) ->
+          text = JSON.parse(body.toString())
+          gutil.log 'gulp-phraseapp', "Downloaded #{code}.json", gutil.colors.cyan "#{keyCount(text)} translations"
+          {code, text}
+    # the phraseapp api is rate-limited to 2 parallel connections
+    .parallel(2)
+    # transform into an object
+    .group('code')
+    # push to a node stream
+    .consume (err, data, push, next) ->
+      if err
+        push(err)
+        return next()
+
+      for code, [{text}] of data
         out = text
         if options.base
           out = merge(text, data[options.base])
 
-        gutil.log 'gulp-phraseapp', "Downloaded #{code}.json", gutil.colors.cyan "#{keyCount(text)} translations"
-        @emit 'data',
-          new gutil.File
-            cwd      : ""
-            base     : ""
-            path     : "#{code}.json"
-            contents : new Buffer JSON.stringify out, null, '  '
+        push(null, new gutil.File(
+          cwd      : ""
+          base     : ""
+          path     : "#{code}.json"
+          contents : new Buffer JSON.stringify out, null, '  '
+        ))
 
-      @emit 'end'
+        next()
 
