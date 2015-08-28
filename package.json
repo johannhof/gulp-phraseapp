@@ -11,8 +11,8 @@
     "type": "git",
     "url": "https://github.com/johannhof/gulp-phraseapp.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Johann Hofmann <mail@johann-hofmann.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/johannhof/gulp-phraseapp/issues"
   },
