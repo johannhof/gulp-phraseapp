@@ -1,4 +1,4 @@
-# gulp-phraseapp
+# gulp-phraseapp [![](https://img.shields.io/npm/v/gulp-phraseapp.svg)](https://www.npmjs.com/package/gulp-phraseapp)
 
 Importing Phraseapp translations as a Gulp task. Can run up to 2 parallel up- and downloads (limited by Phraseapp rate-limiting).
 
