@@ -165,7 +165,7 @@
           locale = locales[i];
           results.push({
             code: locale.code,
-            url: "/locales/" + locale.code + "/download",
+            url: "/locales/" + locale.id + "/download",
             qs: {
               file_format: 'nested_json',
               include_empty_translations: locale.code === options.base || options.includeEmpty ? "1" : "0"
