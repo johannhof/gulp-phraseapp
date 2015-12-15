@@ -104,7 +104,7 @@ exports.download = (options={}) ->
       locales = JSON.parse(body.toString())
       _(for locale in locales
         code: locale.code
-        url: "/locales/#{locale.code}/download"
+        url: "/locales/#{locale.id}/download"
         qs:
           file_format: 'nested_json'
           include_empty_translations: if locale.code is options.base or options.includeEmpty then "1" else "0"
