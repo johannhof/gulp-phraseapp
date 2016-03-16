@@ -128,17 +128,21 @@ exports.download = (options={}) ->
         push(err)
         return next()
 
-      for code, [{text}] of data
-        out = text
-        if options.base
-          out = merge(text, data[options.base][0].text)
+      else if data is _.nil
+        # pass nil (end event) along the stream
+        push(null, data)
 
-        push(null, new gutil.File(
-          cwd      : ""
-          base     : ""
-          path     : "#{code}.json"
-          contents : new Buffer JSON.stringify out, null, '  '
-        ))
+      else
+        for code, [{text}] of data
+          out = text
+          if options.base
+            out = merge(text, data[options.base][0].text)
 
-        next()
+          push(null, new gutil.File(
+            cwd      : ""
+            base     : ""
+            path     : "#{code}.json"
+            contents : new Buffer JSON.stringify out, null, '  '
+          ))
 
+          next()
