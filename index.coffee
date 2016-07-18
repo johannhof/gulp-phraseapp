@@ -52,7 +52,7 @@ exports.upload = (options={}) ->
           formData:
             file: fs.createReadStream(path)
             locale_id: id
-            file_format: 'nested_json'
+            file_format: if options.file_format then options.file_format else 'nested_json'
         , (err, res) ->
           if res.statusCode is 201
             log "Uploaded #{path} (#{id})"
@@ -82,7 +82,7 @@ exports.upload = (options={}) ->
                 filename: vinyl.relative
               contentType: 'application/octet-stream'
             locale_id: id
-            file_format: 'nested_json'
+            file_format: if options.file_format then options.file_format else 'nested_json'
         , (err, res) ->
           if res.statusCode is 201
             log "Uploaded #{vinyl.relative} (#{id})"
@@ -106,7 +106,7 @@ exports.download = (options={}) ->
         code: locale.code
         url: "/locales/#{locale.id}/download"
         qs:
-          file_format: 'nested_json'
+          file_format: if options.file_format then options.file_format else 'nested_json'
           include_empty_translations: if locale.code is options.base or options.includeEmpty then "1" else "0"
       )
     # download the translations

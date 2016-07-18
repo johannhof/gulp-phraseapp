@@ -58,6 +58,7 @@ phraseapp.download({base: 'en'}).pipe(gulp.dest('./locales'));
 - __projectID__ the project ID to identify your project
 - __base__ (optional) if you specify this, missing keys in translation files will be
 filled with the translation of the specified locale
+- __file_format__ (optional) locale file format (`nested_json` / `simple_json`). Defaults to `nested_json`.
 
 ### upload
 
@@ -95,3 +96,4 @@ phraseapp.upload({
 - __projectID__ the project ID to identify your project
 - __files__ (optional) a key-value map where the key is the locale ID and the file is the filename
 to upload, if you follow the `{name}.json` pattern you can pipe into upload instead of this
+- __file_format__ (optional) locale file format (`nested_json` / `simple_json`). Defaults to `nested_json`.
