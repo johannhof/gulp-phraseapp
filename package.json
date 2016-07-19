@@ -1,6 +1,6 @@
 {
   "name": "gulp-phraseapp",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Importing Phraseapp translations as a Gulp task",
   "main": "dist/index.js",
   "scripts": {
